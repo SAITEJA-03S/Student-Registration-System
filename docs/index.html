@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration System - Live Demo</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body class="d-flex flex-column min-vh-100 bg-light">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3 no-print">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#" onclick="navigateTo('dashboard'); return false;">
+                <div class="brand-icon shadow-sm">
+                    <i class="bi bi-mortarboard-fill fs-5"></i>
+                </div>
+                <div>
+                    <span class="fw-bold tracking-tight text-white">Student Registration</span>
+                    <span class="badge bg-primary bg-opacity-75 ms-1 fs-xs">Live Demo</span>
+                </div>
+            </a>
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4 gap-1" id="navLinksAuth" style="display: none;">
+                    <li class="nav-item">
+                        <a class="nav-link nav-btn active" data-page="dashboard" href="#" onclick="navigateTo('dashboard'); return false;">
+                            <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-btn" data-page="students" href="#" onclick="navigateTo('students'); return false;">
+                            <i class="bi bi-people me-1"></i> Student List
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-btn" data-page="add-student" href="#" onclick="openAddStudent(); return false;">
+                            <i class="bi bi-person-plus me-1"></i> Add Student
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link nav-btn" data-page="reports" href="#" onclick="navigateTo('reports'); return false;">
+                            <i class="bi bi-file-earmark-bar-graph me-1"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="d-flex align-items-center gap-3 ms-auto" id="navUserArea">
+                    <!-- Dynamic auth state in navbar -->
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Toast Alert Container -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+        <div id="liveToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body" id="toastMessage">Action successful!</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-grow-1" id="mainContainer">
+
+        <!-- 1. LOGIN VIEW -->
+        <section id="viewLogin" class="page-view">
+            <div class="login-wrapper">
+                <div class="card card-custom login-card shadow-lg">
+                    <div class="p-4 text-center border-bottom bg-white">
+                        <div class="brand-icon mb-3 shadow">
+                            <i class="bi bi-mortarboard-fill fs-2"></i>
+                        </div>
+                        <h4 class="fw-bold text-dark mb-1">Student Registration System</h4>
+                        <p class="text-muted small mb-3">Web Development using PHP (504) - GitHub Pages</p>
+
+                        <!-- Requirement (a): Show Current Date & Time on Login Page -->
+                        <div id="liveClockDisplay" class="live-time-badge shadow-sm w-100 justify-content-center">
+                            <span><i class="bi bi-calendar-event me-1"></i>Date : <strong id="liveDateDisplay">-- --- ----</strong></span>
+                            <span class="mx-2 text-muted">|</span>
+                            <span><i class="bi bi-clock me-1"></i>Time : <strong id="liveTimeDisplay">--:--:-- --</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="card-body p-4 p-md-5 bg-white">
+                        <h5 class="fw-bold mb-4 text-center text-primary">
+                            <i class="bi bi-lock-fill me-1"></i> System Login
+                        </h5>
+
+                        <div id="loginAlert" class="alert alert-danger d-none align-items-center shadow-sm py-2 px-3 mb-4 rounded-3 border-danger-subtle" role="alert">
+                            <i class="bi bi-exclamation-octagon-fill fs-5 me-2 flex-shrink-0"></i>
+                            <div id="loginAlertMsg">Invalid Username or Password!</div>
+                        </div>
+
+                        <form id="loginForm" onsubmit="handleLogin(event)">
+                            <div class="mb-3">
+                                <label for="loginUsername" class="form-label"><i class="bi bi-person me-1"></i> Username or Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-person-fill text-muted"></i></span>
+                                    <input type="text" class="form-control" id="loginUsername" placeholder="Enter admin or student email" value="admin" required autofocus>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="loginPassword" class="form-label"><i class="bi bi-key me-1"></i> Password</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="bi bi-lock-fill text-muted"></i></span>
+                                    <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" value="admin123" required>
+                                </div>
+                            </div>
+
+                            <div class="d-grid mb-3">
+                                <button type="submit" class="btn btn-primary btn-lg fw-semibold shadow-sm py-2">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                                </button>
+                            </div>
+
+                            <div class="text-center pt-2">
+                                <p class="text-muted small mb-2">New student not registered yet?</p>
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-4" onclick="navigateTo('register')">
+                                    <i class="bi bi-person-plus me-1"></i> Register Student Account
+                                </button>
+                            </div>
+                        </form>
+
+                        <div class="mt-4 p-3 bg-light rounded-3 border text-start small">
+                            <div class="fw-bold text-dark mb-1"><i class="bi bi-info-circle-fill text-primary me-1"></i> Default Demo Credentials:</div>
+                            <div class="text-muted">Admin: <code class="user-select-all fw-bold">admin</code> / Password: <code class="user-select-all fw-bold">admin123</code></div>
+                            <div class="text-muted">Student: <code class="user-select-all fw-bold">rahul@example.com</code> / Password: <code class="user-select-all fw-bold">student123</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. DASHBOARD VIEW -->
+        <section id="viewDashboard" class="page-view d-none">
+            <div class="container-fluid px-4 py-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1 text-dark">
+                            Welcome, <span id="dashUserGreeting">Administrator</span>! 👋
+                        </h2>
+                        <p class="text-muted small mb-0">Student Registration System - Administration &amp; Analytics Dashboard</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary rounded-pill px-3 shadow-sm" onclick="navigateTo('reports')">
+                            <i class="bi bi-bar-chart-line me-1"></i> Analytics &amp; Reports
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-3 shadow-sm" onclick="openAddStudent()">
+                            <i class="bi bi-person-plus me-1"></i> New Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 Stats Cards Grid -->
+                <div class="row g-3 mb-4">
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="stat-card blue">
+                            <div class="small fw-semibold text-uppercase tracking-wider text-white-50">Total Students</div>
+                            <div class="fs-2 fw-bold my-1" id="statTotalStudents">0</div>
+                            <div class="small text-white-50"><i class="bi bi-arrow-up-circle me-1"></i>Enrolled in database</div>
+                            <i class="bi bi-people stat-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="stat-card green">
+                            <div class="small fw-semibold text-uppercase tracking-wider text-white-50">Active Courses</div>
+                            <div class="fs-2 fw-bold my-1" id="statActiveCourses">0</div>
+                            <div class="small text-white-50"><i class="bi bi-mortarboard me-1"></i>Offered programs</div>
+                            <i class="bi bi-mortarboard stat-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="stat-card purple">
+                            <div class="small fw-semibold text-uppercase tracking-wider text-white-50">Male Students</div>
+                            <div class="fs-2 fw-bold my-1" id="statMaleStudents">0</div>
+                            <div class="small text-white-50"><i class="bi bi-gender-male me-1"></i>Registered candidates</div>
+                            <i class="bi bi-gender-male stat-icon"></i>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="stat-card amber">
+                            <div class="small fw-semibold text-uppercase tracking-wider text-white-50">Female Students</div>
+                            <div class="fs-2 fw-bold my-1" id="statFemaleStudents">0</div>
+                            <div class="small text-white-50"><i class="bi bi-gender-female me-1"></i>Registered candidates</div>
+                            <i class="bi bi-gender-female stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100 shadow-sm border-0">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold text-secondary">
+                                    <i class="bi bi-pie-chart-fill text-primary me-2"></i>Students by Course
+                                </h6>
+                                <a href="#" onclick="navigateTo('reports'); return false;" class="small text-decoration-none">View full &rarr;</a>
+                            </div>
+                            <div class="card-body d-flex align-items-center justify-content-center p-4">
+                                <div style="width: 100%; max-height: 280px;">
+                                    <canvas id="dashCourseChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="card card-custom h-100 shadow-sm border-0">
+                            <div class="card-header-custom d-flex justify-content-between align-items-center">
+                                <h6 class="mb-0 fw-bold text-secondary">
+                                    <i class="bi bi-bar-chart-fill text-success me-2"></i>Students by Semester
+                                </h6>
+                                <a href="#" onclick="navigateTo('students'); return false;" class="small text-decoration-none">View table &rarr;</a>
+                            </div>
+                            <div class="card-body p-4">
+                                <div style="width: 100%; height: 260px;">
+                                    <canvas id="dashSemesterChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Registrations Table -->
+                <div class="card card-custom shadow-sm border-0 mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-secondary">
+                            <i class="bi bi-clock-history text-info me-2"></i>Recent Student Registrations
+                        </h6>
+                        <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="navigateTo('students')">
+                            View All Records
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Student</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Course</th>
+                                    <th>Semester</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dashRecentStudentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. STUDENTS LIST VIEW (Table, Search & Pagination) -->
+        <section id="viewStudents" class="page-view d-none">
+            <div class="container-fluid px-4 py-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1"><i class="bi bi-people-fill text-primary me-2"></i>Student Management</h3>
+                        <p class="text-muted small mb-0">Phase 1 (f) - Retrieve Data in Table &amp; Paging Navigation</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary rounded-pill px-3" onclick="navigateTo('reports')">
+                            <i class="bi bi-file-earmark-bar-graph me-1"></i> Reports
+                        </button>
+                        <button class="btn btn-outline-success rounded-pill px-3" onclick="exportCSV()">
+                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Export CSV
+                        </button>
+                        <button class="btn btn-primary rounded-pill px-3 shadow-sm" onclick="openAddStudent()">
+                            <i class="bi bi-person-plus me-1"></i> Add Student
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Filter Card -->
+                <div class="card card-custom mb-4 shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-5">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" id="searchInput" oninput="renderStudentsTable()" class="form-control border-start-0 ps-0" placeholder="Search by name, email, mobile, course...">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <select id="courseFilterSelect" onchange="renderStudentsTable()" class="form-select">
+                                    <option value="">-- Filter by All Courses --</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="BBA">BBA</option>
+                                    <option value="MCA">MCA</option>
+                                    <option value="MBA">MBA</option>
+                                    <option value="B.Tech (CSE)">B.Tech (CSE)</option>
+                                    <option value="B.Tech (IT)">B.Tech (IT)</option>
+                                    <option value="B.Sc (CS)">B.Sc (CS)</option>
+                                    <option value="M.Tech">M.Tech</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex gap-2">
+                                <button class="btn btn-primary w-100" onclick="renderStudentsTable()"><i class="bi bi-funnel me-1"></i> Apply Filter</button>
+                                <button class="btn btn-outline-secondary" onclick="clearFilters()" title="Reset Filters"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Table Card -->
+                <div class="card card-custom shadow-sm border-0 overflow-hidden">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-secondary">
+                            Registered Students <span class="badge bg-primary-subtle text-primary ms-2" id="studentsTotalBadge">0 Total</span>
+                        </h6>
+                        <span class="small text-muted" id="studentsPaginationSummary">Showing 0 to 0</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-custom table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px;">ID</th>
+                                    <th style="width: 70px;">Photo</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Course</th>
+                                    <th>Semester</th>
+                                    <th>DOB</th>
+                                    <th class="text-center" style="width: 150px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center py-3">
+                        <span class="small text-muted" id="paginationPageIndicator">Page 1</span>
+                        <nav aria-label="Student Pagination">
+                            <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. REGISTRATION / ADD / EDIT FORM VIEW -->
+        <section id="viewForm" class="page-view d-none">
+            <div class="container py-4">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10 col-xl-9">
+                        <div class="card card-custom shadow-lg">
+                            <div class="card-header-custom bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                                <div>
+                                    <h4 class="mb-0 fw-bold" id="formHeaderTitle"><i class="bi bi-person-badge me-2"></i>Student Registration Form</h4>
+                                    <small class="text-white-50">Web Development using PHP (504) - Form Components</small>
+                                </div>
+                                <span class="badge bg-light text-primary px-3 py-2 rounded-pill fw-semibold">Phase 1 (c)</span>
+                            </div>
+
+                            <div class="card-body p-4 p-md-5">
+                                <div id="formAlertBox"></div>
+
+                                <form id="studentRegistrationForm" onsubmit="handleFormSubmit(event)" novalidate>
+                                    <input type="hidden" id="editStudentId" value="">
+
+                                    <!-- Personal Details -->
+                                    <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">
+                                        <i class="bi bi-person-lines-fill text-primary me-2"></i>Personal Information
+                                    </h5>
+
+                                    <div class="row g-3 mb-4">
+                                        <!-- 1. Full Name (Text Box) -->
+                                        <div class="col-md-6">
+                                            <label for="formFullname" class="form-label">Full Name <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                                <input type="text" class="form-control" id="formFullname" placeholder="e.g. Rahul Kumar" required>
+                                            </div>
+                                            <div class="invalid-feedback">Full name is required (min 3 chars).</div>
+                                        </div>
+
+                                        <!-- 2. Email (Text Box) -->
+                                        <div class="col-md-6">
+                                            <label for="formEmail" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                                <input type="email" class="form-control" id="formEmail" placeholder="e.g. rahul@example.com" required>
+                                            </div>
+                                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                                        </div>
+
+                                        <!-- 3. Mobile No. (Text Box) -->
+                                        <div class="col-md-6">
+                                            <label for="formMobile" class="form-label">Mobile Number <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                                                <input type="tel" class="form-control" id="formMobile" placeholder="e.g. 9876543210" maxlength="10" required>
+                                            </div>
+                                            <div class="invalid-feedback">Enter a valid 10-digit mobile number.</div>
+                                        </div>
+
+                                        <!-- 4. Date of Birth (Date Picker) -->
+                                        <div class="col-md-6">
+                                            <label for="formDob" class="form-label">Date of Birth <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
+                                                <input type="date" class="form-control" id="formDob" required>
+                                            </div>
+                                            <div class="invalid-feedback">Date of birth is required.</div>
+                                        </div>
+
+                                        <!-- 5. Gender (Radio Button) -->
+                                        <div class="col-12">
+                                            <label class="form-label d-block">Gender <span class="text-danger">*</span></label>
+                                            <div id="formGenderContainer" class="d-flex flex-wrap gap-4 pt-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="gender" id="genderMale" value="Male" checked>
+                                                    <label class="form-check-label" for="genderMale"><i class="bi bi-gender-male text-primary me-1"></i>Male</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="gender" id="genderFemale" value="Female">
+                                                    <label class="form-check-label" for="genderFemale"><i class="bi bi-gender-female text-danger me-1"></i>Female</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="gender" id="genderOther" value="Other">
+                                                    <label class="form-check-label" for="genderOther"><i class="bi bi-gender-ambiguous text-secondary me-1"></i>Other</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Academic Details -->
+                                    <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">
+                                        <i class="bi bi-mortarboard-fill text-primary me-2"></i>Academic Details
+                                    </h5>
+
+                                    <div class="row g-3 mb-4">
+                                        <!-- 6. Course (Drop-down List) -->
+                                        <div class="col-md-6">
+                                            <label for="formCourse" class="form-label">Course <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="formCourse" required>
+                                                <option value="" disabled selected>-- Select Course --</option>
+                                                <option value="BCA">BCA</option>
+                                                <option value="BBA">BBA</option>
+                                                <option value="MCA">MCA</option>
+                                                <option value="MBA">MBA</option>
+                                                <option value="B.Tech (CSE)">B.Tech (CSE)</option>
+                                                <option value="B.Tech (IT)">B.Tech (IT)</option>
+                                                <option value="B.Sc (CS)">B.Sc (CS)</option>
+                                                <option value="M.Tech">M.Tech</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please select a course.</div>
+                                        </div>
+
+                                        <!-- 7. Semester (Drop-down List) -->
+                                        <div class="col-md-6">
+                                            <label for="formSemester" class="form-label">Semester <span class="text-danger">*</span></label>
+                                            <select class="form-select" id="formSemester" required>
+                                                <option value="" disabled selected>-- Select Semester --</option>
+                                                <option value="Semester 1">Semester 1</option>
+                                                <option value="Semester 2">Semester 2</option>
+                                                <option value="Semester 3">Semester 3</option>
+                                                <option value="Semester 4">Semester 4</option>
+                                                <option value="Semester 5">Semester 5</option>
+                                                <option value="Semester 6">Semester 6</option>
+                                                <option value="Semester 7">Semester 7</option>
+                                                <option value="Semester 8">Semester 8</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please select a semester.</div>
+                                        </div>
+
+                                        <!-- 8. Hobbies (Checkbox) -->
+                                        <div class="col-12">
+                                            <label class="form-label d-block">Hobbies</label>
+                                            <div class="d-flex flex-wrap gap-4 pt-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input hobby-cb" type="checkbox" id="hob_reading" value="Reading">
+                                                    <label class="form-check-label" for="hob_reading">Reading</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input hobby-cb" type="checkbox" id="hob_sports" value="Sports">
+                                                    <label class="form-check-label" for="hob_sports">Sports</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input hobby-cb" type="checkbox" id="hob_music" value="Music">
+                                                    <label class="form-check-label" for="hob_music">Music</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input hobby-cb" type="checkbox" id="hob_coding" value="Coding">
+                                                    <label class="form-check-label" for="hob_coding">Coding</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input hobby-cb" type="checkbox" id="hob_other" value="Other">
+                                                    <label class="form-check-label" for="hob_other">Other</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Address & Photo -->
+                                    <h5 class="fw-bold text-secondary mb-3 pb-2 border-bottom">
+                                        <i class="bi bi-geo-alt-fill text-primary me-2"></i>Address &amp; Profile Photo
+                                    </h5>
+
+                                    <div class="row g-3 mb-4">
+                                        <!-- 9. Address (Text Area) -->
+                                        <div class="col-md-8">
+                                            <label for="formAddress" class="form-label">Residential Address <span class="text-danger">*</span></label>
+                                            <textarea class="form-control" id="formAddress" rows="4" placeholder="Enter complete address, city, state, pin code..." required></textarea>
+                                            <div class="invalid-feedback">Residential address is required.</div>
+                                        </div>
+
+                                        <!-- 10. Upload Photo (File Upload) -->
+                                        <div class="col-md-4 text-center">
+                                            <label class="form-label d-block text-start">Upload Photo</label>
+                                            <div class="mb-2">
+                                                <img id="formPhotoPreview" src="assets/img/default_avatar.svg" alt="Preview" class="rounded-circle border shadow-sm" style="width: 90px; height: 90px; object-fit: cover;">
+                                            </div>
+                                            <input class="form-control form-control-sm" type="file" id="formPhoto" accept="image/*" onchange="previewPhoto(event)">
+                                            <div class="form-text small">JPG, PNG, WebP (Max 2MB)</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Buttons (Submit, Reset) -->
+                                    <div class="d-flex flex-wrap gap-3 justify-content-end pt-3 border-top">
+                                        <button type="button" class="btn btn-outline-secondary px-4 py-2 rounded-3" onclick="resetStudentForm()">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Reset
+                                        </button>
+                                        <button type="submit" class="btn btn-success px-5 py-2 rounded-3 fw-semibold shadow-sm" id="formSubmitBtn">
+                                            <i class="bi bi-check2-circle me-1"></i> Register Student
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. STUDENT PROFILE / ID CARD VIEW -->
+        <section id="viewProfile" class="page-view d-none">
+            <div class="container py-4">
+                <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+                    <div>
+                        <h3 class="fw-bold mb-1"><i class="bi bi-person-badge text-primary me-2"></i>Student Details</h3>
+                        <p class="text-muted small mb-0" id="profileSubtitle">Official Student Record Profile</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill px-3">
+                            <i class="bi bi-printer me-1"></i> Print Profile
+                        </button>
+                        <button onclick="editCurrentProfile()" class="btn btn-primary rounded-pill px-3">
+                            <i class="bi bi-pencil-square me-1"></i> Edit Profile
+                        </button>
+                        <button onclick="navigateTo('students')" class="btn btn-outline-dark rounded-pill px-3">
+                            <i class="bi bi-arrow-left me-1"></i> Back
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Print Header -->
+                <div class="print-header">
+                    <h2>STUDENT REGISTRATION SYSTEM</h2>
+                    <h4>Official Student Record Summary</h4>
+                    <p id="printTimestamp">Date Generated: --</p>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card card-custom student-id-card shadow-lg mb-4">
+                            <div class="id-card-header">
+                                <h4 class="fw-bold mb-1 text-white">STUDENT ID CARD</h4>
+                                <p class="small text-white-50 mb-0">Student Registration System - PHP (504)</p>
+                            </div>
+
+                            <div class="card-body p-4 text-center">
+                                <img id="profilePhoto" src="assets/img/default_avatar.svg" alt="Photo" class="id-avatar mb-3">
+                                <h3 class="fw-bold text-dark mb-1" id="profileFullname">Student Name</h3>
+                                <div class="d-flex justify-content-center gap-2 mb-3">
+                                    <span class="badge bg-primary px-3 py-2 fs-6" id="profileCourse">Course</span>
+                                    <span class="badge bg-secondary px-3 py-2 fs-6" id="profileSemester">Semester</span>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <div class="row g-3 text-start px-md-4">
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Student ID</label>
+                                        <p class="fw-semibold fs-5 text-primary mb-0" id="profileId">#00001</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Gender</label>
+                                        <p class="fw-semibold mb-0" id="profileGender">Male</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Date of Birth</label>
+                                        <p class="fw-semibold mb-0" id="profileDob">--</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Mobile Number</label>
+                                        <p class="fw-semibold mb-0 font-monospace" id="profileMobile">--</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Email Address</label>
+                                        <p class="fw-semibold mb-0" id="profileEmail">--</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="text-muted small fw-bold text-uppercase">Hobbies</label>
+                                        <p class="fw-semibold mb-0" id="profileHobbies">--</p>
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="text-muted small fw-bold text-uppercase">Residential Address</label>
+                                        <p class="fw-semibold mb-0 text-secondary" id="profileAddress">--</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card-footer bg-light p-3 text-center text-muted small">
+                                <i class="bi bi-shield-check text-success me-1"></i> Verified Student Record in Database
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. REPORTS VIEW -->
+        <section id="viewReports" class="page-view d-none">
+            <div class="container-fluid px-4 py-4">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 no-print">
+                    <div>
+                        <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>Student Reports</h3>
+                        <p class="text-muted small mb-0">Phase 1 (g) - Structured Reports for Viewing, Exporting &amp; Printing</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button onclick="window.print()" class="btn btn-outline-secondary rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-printer me-1"></i> Print / Save PDF
+                        </button>
+                        <button onclick="exportCSV()" class="btn btn-success rounded-pill px-3 shadow-sm">
+                            <i class="bi bi-download me-1"></i> Export to CSV
+                        </button>
+                    </div>
+                </div>
+
+                <div class="print-header">
+                    <h2 class="fw-bold">STUDENT REGISTRATION SYSTEM</h2>
+                    <h5>Comprehensive Student Enrollment Report</h5>
+                    <p class="mb-0" id="reportPrintSub">Generated On: --</p>
+                </div>
+
+                <!-- Report Filters -->
+                <div class="card card-custom mb-4 shadow-sm border-0 no-print">
+                    <div class="card-body p-3">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1 fw-bold">Course Filter</label>
+                                <select id="repCourseFilter" onchange="renderReports()" class="form-select form-select-sm">
+                                    <option value="">-- All Courses --</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="BBA">BBA</option>
+                                    <option value="MCA">MCA</option>
+                                    <option value="MBA">MBA</option>
+                                    <option value="B.Tech (CSE)">B.Tech (CSE)</option>
+                                    <option value="B.Tech (IT)">B.Tech (IT)</option>
+                                    <option value="B.Sc (CS)">B.Sc (CS)</option>
+                                    <option value="M.Tech">M.Tech</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1 fw-bold">Semester Filter</label>
+                                <select id="repSemFilter" onchange="renderReports()" class="form-select form-select-sm">
+                                    <option value="">-- All Semesters --</option>
+                                    <option value="Semester 1">Semester 1</option>
+                                    <option value="Semester 2">Semester 2</option>
+                                    <option value="Semester 3">Semester 3</option>
+                                    <option value="Semester 4">Semester 4</option>
+                                    <option value="Semester 5">Semester 5</option>
+                                    <option value="Semester 6">Semester 6</option>
+                                    <option value="Semester 7">Semester 7</option>
+                                    <option value="Semester 8">Semester 8</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small mb-1 fw-bold">Gender Filter</label>
+                                <select id="repGenderFilter" onchange="renderReports()" class="form-select form-select-sm">
+                                    <option value="">-- All Genders --</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 pt-md-3 d-flex gap-2">
+                                <button class="btn btn-primary btn-sm w-100" onclick="renderReports()"><i class="bi bi-funnel me-1"></i> Filter Report</button>
+                                <button class="btn btn-outline-secondary btn-sm" onclick="clearReportFilters()" title="Clear Filters"><i class="bi bi-x-lg"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Metrics -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-0 bg-primary text-white shadow-sm">
+                            <div class="small fw-semibold text-white-50">Total Matched Students</div>
+                            <div class="fs-3 fw-bold" id="repTotalMatched">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-0 bg-success text-white shadow-sm">
+                            <div class="small fw-semibold text-white-50">Gender Breakdown</div>
+                            <div class="fs-6 fw-bold mt-1" id="repGenderBreakdown">
+                                Male: 0 | Female: 0 | Other: 0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-custom p-3 border-0 bg-dark text-white shadow-sm">
+                            <div class="small fw-semibold text-white-50">Courses Represented</div>
+                            <div class="fs-3 fw-bold" id="repCoursesCount">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Report Table -->
+                <div class="card card-custom shadow-sm border-0 mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold text-secondary">
+                            <i class="bi bi-table text-primary me-2"></i>Report Records Listing
+                        </h6>
+                        <span class="badge bg-secondary-subtle text-secondary" id="repRecordsBadge">0 Records Found</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th style="width: 50px;">#</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>Gender</th>
+                                    <th>Course</th>
+                                    <th>Semester</th>
+                                    <th>DOB</th>
+                                    <th>Address</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Deletion</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 text-center">
+                    <p class="fs-5 mb-1">Are you sure you want to delete student:</p>
+                    <h5 class="fw-bold text-danger" id="deleteStudentModalName"></h5>
+                    <p class="text-muted small mt-2">This action cannot be undone. All related data will be removed.</p>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill px-4" onclick="executeDelete()">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-3 bg-white border-top text-center text-muted small no-print">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div>
+                &copy; <span id="currentYear">2026</span> <strong>Student Registration System</strong> - Web Development using PHP (504)
+            </div>
+            <div class="text-secondary">
+                GitHub Pages Live Edition &bull; HTML5, CSS3, JavaScript, Bootstrap 5 &amp; Chart.js
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Client Application JS -->
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
