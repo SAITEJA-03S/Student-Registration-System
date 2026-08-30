@@ -1,0 +1,4 @@
+# Student Registration System .gitignore
+.DS_Store
+Thumbs.db
+*.log
