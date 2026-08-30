@@ -1,6 +1,10 @@
 # Student Registration System
 **Web Development using PHP (504)**
 
+[![GitHub Pages](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=github)](https://saiteja-03s.github.io/Student-Registration-System/)
+
+🌐 **Live Demo Website**: [https://saiteja-03s.github.io/Student-Registration-System/](https://saiteja-03s.github.io/Student-Registration-System/)
+
 A full-featured, secure, and modern Student Registration and Management System built with **PHP, MySQL, JavaScript, HTML5, CSS3, and Bootstrap 5**.
 
 ---
